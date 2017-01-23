@@ -29,6 +29,13 @@
             <artifactId>flink-connector-twitter_2.10</artifactId>
             <version>1.1.4-hadoop1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.twitter/hbc -->
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>hbc</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+
 
 
     </dependencies>

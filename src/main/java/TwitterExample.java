@@ -25,8 +25,12 @@ import org.apache.flink.streaming.connectors.twitter.TwitterSource;
 import org.apache.flink.util.Collector;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-
+import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Vector;
+import java.util.List;
 
 /**
  * Implements the "TwitterStream" program that computes a most used word
@@ -76,12 +80,23 @@ public class TwitterExample {
 
         // get input data
         DataStream<String> streamSource;
+
         if (params.has(TwitterSource.CONSUMER_KEY) &&
                 params.has(TwitterSource.CONSUMER_SECRET) &&
                 params.has(TwitterSource.TOKEN) &&
                 params.has(TwitterSource.TOKEN_SECRET)
                 ) {
-            streamSource = env.addSource(new TwitterSource(params.getProperties()));
+
+            //streamSource = env.addSource(new TwitterSource(params.getProperties()));
+            List<String> theList = new ArrayList<String>();
+            //Find tweet about Trump
+            theList.add("trump");
+            TwitterSource twitterA = new TwitterSource(params.getProperties());
+            TwitterSourceOpt.FilterEndpoint i = new TwitterSourceOpt.FilterEndpoint(theList);
+            twitterA.setCustomEndpointInitializer(i);
+
+            streamSource = env.addSource(twitterA);
+
         } else {
             System.out.println("Executing TwitterStream example with default props.");
             System.out.println("Use --twitter-source.consumerKey <key> --twitter-source.consumerSecret <secret> " +
@@ -138,7 +153,7 @@ public class TwitterExample {
             boolean hasText = jsonNode.has("text");
             if (isEnglish && hasText) {
                 // message of tweet
-
+                System.out.println(jsonNode.get("text").getValueAsText());
                 StringTokenizer tokenizer = new StringTokenizer(jsonNode.get("text").getValueAsText());
 
                 // split the message
