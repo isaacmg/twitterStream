@@ -30,8 +30,6 @@ public class TwitterSourceOpt extends TwitterSource  {
 
             StatusesFilterEndpoint status1 = new StatusesFilterEndpoint();
             status1.trackTerms(terms);
-            System.out.print("the terms are dw");
-            System.out.println(terms.get(0));
             return status1;
         }
 
