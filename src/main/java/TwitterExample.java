@@ -89,8 +89,10 @@ public class TwitterExample {
 
             //streamSource = env.addSource(new TwitterSource(params.getProperties()));
             List<String> theList = new ArrayList<String>();
-            //Find tweet about Trump
+            //Find tweets about Trump and Clinton
             theList.add("trump");
+            theList.add("clinton");
+
             TwitterSource twitterA = new TwitterSource(params.getProperties());
             TwitterSourceOpt.FilterEndpoint i = new TwitterSourceOpt.FilterEndpoint(theList);
             twitterA.setCustomEndpointInitializer(i);
