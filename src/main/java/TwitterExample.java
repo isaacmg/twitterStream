@@ -145,7 +145,6 @@ public class TwitterExample {
         /**
          * Select the language from the incoming JSON text
          */
-
         public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
             if(jsonParser == null) {
                 jsonParser = new ObjectMapper();
@@ -154,7 +153,7 @@ public class TwitterExample {
             boolean isEnglish = jsonNode.has("user") && jsonNode.get("user").has("lang") && jsonNode.get("user").get("lang").getValueAsText().equals("en");
             boolean hasText = jsonNode.has("text");
             if (isEnglish && hasText) {
-                // message of tweet
+                // print message of tweet
                 System.out.println(jsonNode.get("text").getValueAsText());
                 StringTokenizer tokenizer = new StringTokenizer(jsonNode.get("text").getValueAsText());
 

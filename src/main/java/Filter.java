@@ -13,8 +13,9 @@ public class Filter implements TwitterSource.EndpointInitializer, Serializable {
     private static List<Location> locations;
     private static List<Long> userIDS;
 
-    Filter(List<String> terms1 ){
+    Filter(List<String> terms1, List<Location> l ){
         terms = terms1;
+        locations = l;
 
     }
     public StreamingEndpoint createEndpoint(){
