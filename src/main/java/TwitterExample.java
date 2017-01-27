@@ -92,7 +92,6 @@ public class TwitterExample {
             //Find tweets about Trump and Clinton
             theList.add("trump");
             theList.add("clinton");
-
             TwitterSource twitterA = new TwitterSource(params.getProperties());
             TwitterSourceOpt.FilterEndpoint i = new TwitterSourceOpt.FilterEndpoint(theList);
             twitterA.setCustomEndpointInitializer(i);

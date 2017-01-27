@@ -13,15 +13,18 @@ public class Filter implements TwitterSource.EndpointInitializer, Serializable {
     private static List<Location> locations;
     private static List<Long> userIDS;
 
-    Filter(List<String> terms1, List<Location> l ){
+    Filter(List<String> terms1, List<Location> l, List<Long> users ){
         terms = terms1;
         locations = l;
+        userIDS = users;
 
     }
     public StreamingEndpoint createEndpoint(){
 
         StatusesFilterEndpoint status1 = new StatusesFilterEndpoint();
-        status1.trackTerms(terms);
+        if(terms!=null) status1.trackTerms(terms);
+        if(locations!=null) status1.locations(locations);
+        if(userIDS!=null) status1.followings(userIDS);
         return status1;
     }
 
