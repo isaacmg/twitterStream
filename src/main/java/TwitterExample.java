@@ -152,8 +152,8 @@ public class TwitterExample {
             boolean isEnglish = jsonNode.has("user") && jsonNode.get("user").has("lang") && jsonNode.get("user").get("lang").getValueAsText().equals("en");
             boolean hasText = jsonNode.has("text");
             if (isEnglish && hasText) {
-                // print message of tweet
-                System.out.println(jsonNode.get("text").getValueAsText());
+
+
                 StringTokenizer tokenizer = new StringTokenizer(jsonNode.get("text").getValueAsText());
 
                 // split the message
