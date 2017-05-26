@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -89,6 +90,7 @@ public class TwitterExample {
 
             //streamSource = env.addSource(new TwitterSource(params.getProperties()));
             List<String> theList = new ArrayList<String>();
+
             //Find tweets about Trump and Clinton
             theList.add("trump");
             theList.add("clinton");
@@ -111,6 +113,13 @@ public class TwitterExample {
                 .flatMap(new SelectEnglishAndTokenizeFlatMap())
                 // group by words and sum their occurrences
                 .keyBy(0).sum(1);
+        tweets = tweets.filter(new FilterFunction<Tuple2<String, Integer>>() {
+            public boolean filter(Tuple2<String, Integer> value) { int s = value.getField(1); return s > 8; }
+        });
+
+
+
+
 
         // emit result
         if (params.has("output")) {
@@ -153,7 +162,6 @@ public class TwitterExample {
             boolean hasText = jsonNode.has("text");
             if (isEnglish && hasText) {
 
-
                 StringTokenizer tokenizer = new StringTokenizer(jsonNode.get("text").getValueAsText());
 
                 // split the message
@@ -166,6 +174,8 @@ public class TwitterExample {
                 }
             }
         }
+
     }
+
 
 }
