@@ -107,7 +107,13 @@ public class TwitterExample {
             // get default test text data
             streamSource = env.fromElements(TwitterExampleData.TEXTS);
         }
-
+        final ArrayList<String> stopWords = new ArrayList<String>();
+        
+        stopWords.add("from");
+        stopWords.add("to");
+        stopWords.add("of");
+        stopWords.add("a");
+        stopWords.add("rt");
         DataStream<Tuple2<String, Integer>> tweets = streamSource
                 // selecting English tweets and splitting to (word, 1)
                 .flatMap(new SelectEnglishAndTokenizeFlatMap())
@@ -115,6 +121,11 @@ public class TwitterExample {
                 .keyBy(0).sum(1);
         tweets = tweets.filter(new FilterFunction<Tuple2<String, Integer>>() {
             public boolean filter(Tuple2<String, Integer> value) { int s = value.getField(1); return s > 8; }
+        }).filter(new FilterFunction<Tuple2<String, Integer>>(){
+            public boolean filter(Tuple2<String,Integer> value){
+                String word = value.getField(0);
+                return !stopWords.contains(word);
+            }
         });
 
 
