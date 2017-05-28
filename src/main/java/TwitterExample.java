@@ -17,12 +17,15 @@
 
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.twitter.TwitterSource;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer09;
 
+import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 import org.apache.flink.util.Collector;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -166,6 +169,18 @@ public class TwitterExample {
             tweets.print();
             locations.print();
         }
+        FlinkKafkaProducer09<String> myProducer = new FlinkKafkaProducer09<String>(
+                "localhost:9092",            // broker list
+                "my-topic",                  // target topic
+                new SimpleStringSchema());   // serialization schema
+
+// the following is necessary for at-least-once delivery guarantee
+        myProducer.setLogFailuresOnly(false);   // "false" by default
+        myProducer.setFlushOnCheckpoint(true);  // "false" by default
+        DataStream<String> a = tweets.map(new ToString1());
+        tweets.addSink(a);
+
+
 
         // execute program
         env.execute("Twitter Streaming Example");
@@ -184,6 +199,13 @@ public class TwitterExample {
      * splits it into multiple pairs in the form of "(word,1)" ({@code Tuple2<String,
      * Integer>}).
      */
+    public class ToString1 implements MapFunction<Tuple2<String, Integer>, Integer> {
+        @Override
+        public String map(Tuple2<String, Integer> in) {
+            return in.f0 + in.f1;
+        }
+    }
+
     public static class SelectEnglishAndTokenizeFlatMap implements FlatMapFunction<String, Tuple2<String, Integer>> {
         private static final long serialVersionUID = 1L;
         private String fieldName;
