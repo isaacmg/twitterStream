@@ -33,6 +33,8 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.List;
 
+import static org.apache.hadoop.yarn.webapp.hamlet.HamletSpec.Media.print;
+
 /**
  * Implements the "TwitterStream" program that computes a most used word
  * occurrence over JSON objects in a streaming fashion.
@@ -59,7 +61,19 @@ public class TwitterExample {
     // *************************************************************************
     // PROGRAM
     // *************************************************************************
+    public static ArrayList<String> initArrayList(String path){
+        //TODO get stop words from path.
+        ArrayList<String> stopWords = new ArrayList<String>();
+        //Add some stop words for example
+        stopWords.add("from");
+        stopWords.add("to");
+        stopWords.add("of");
+        stopWords.add("a");
+        stopWords.add("rt");
+        stopWords.add("am");
+        return stopWords;
 
+    }
     public static void main(String[] args) throws Exception {
         System.out.println("Working Directory = " +
                 System.getProperty("user.dir"));
@@ -107,28 +121,25 @@ public class TwitterExample {
             // get default test text data
             streamSource = env.fromElements(TwitterExampleData.TEXTS);
         }
-        final ArrayList<String> stopWords = new ArrayList<String>();
-        
-        stopWords.add("from");
-        stopWords.add("to");
-        stopWords.add("of");
-        stopWords.add("a");
-        stopWords.add("rt");
+        final ArrayList<String> stopWords = initArrayList("stopwords.txt");
+
         DataStream<Tuple2<String, Integer>> tweets = streamSource
                 // selecting English tweets and splitting to (word, 1)
-                .flatMap(new SelectEnglishAndTokenizeFlatMap())
+                .flatMap(new SelectEnglishAndTokenizeFlatMap("text"))
                 // group by words and sum their occurrences
                 .keyBy(0).sum(1);
+        //Get locations
+        DataStream<Tuple2<String, Integer>> locations = streamSource.flatMap(new SelectEnglishAndTokenizeFlatMap("location")).keyBy(0).sum(1);
+        //Filter out stop words and words with less than 19 mentions
         tweets = tweets.filter(new FilterFunction<Tuple2<String, Integer>>() {
-            public boolean filter(Tuple2<String, Integer> value) { int s = value.getField(1); return s > 8; }
+            public boolean filter(Tuple2<String, Integer> value) { int s = value.getField(1); return s > 19; }
         }).filter(new FilterFunction<Tuple2<String, Integer>>(){
             public boolean filter(Tuple2<String,Integer> value){
                 String word = value.getField(0);
                 return !stopWords.contains(word);
+
             }
         });
-
-
 
 
 
@@ -137,7 +148,8 @@ public class TwitterExample {
             tweets.writeAsText(params.get("output"));
         } else {
             System.out.println("Printing result to stdout. Use --output to specify output path.");
-            tweets.print();
+            //tweets.print();
+            locations.print();
         }
 
         // execute program
@@ -159,8 +171,11 @@ public class TwitterExample {
      */
     public static class SelectEnglishAndTokenizeFlatMap implements FlatMapFunction<String, Tuple2<String, Integer>> {
         private static final long serialVersionUID = 1L;
-
+        private String fieldName;
         private transient ObjectMapper jsonParser;
+        SelectEnglishAndTokenizeFlatMap(String fieldName1){
+            fieldName=fieldName1;
+        }
         /**
          * Select the language from the incoming JSON text
          */
@@ -169,11 +184,12 @@ public class TwitterExample {
                 jsonParser = new ObjectMapper();
             }
             JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
+            //System.out.println(jsonNode);
             boolean isEnglish = jsonNode.has("user") && jsonNode.get("user").has("lang") && jsonNode.get("user").get("lang").getValueAsText().equals("en");
-            boolean hasText = jsonNode.has("text");
+            boolean hasText = jsonNode.has(fieldName);
             if (isEnglish && hasText) {
 
-                StringTokenizer tokenizer = new StringTokenizer(jsonNode.get("text").getValueAsText());
+                StringTokenizer tokenizer = new StringTokenizer(jsonNode.get(fieldName).getValueAsText());
 
                 // split the message
                 while (tokenizer.hasMoreTokens()) {
@@ -187,6 +203,7 @@ public class TwitterExample {
         }
 
     }
+
 
 
 }
