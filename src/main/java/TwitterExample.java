@@ -27,6 +27,10 @@ import org.apache.flink.util.Collector;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -61,17 +65,26 @@ public class TwitterExample {
     // *************************************************************************
     // PROGRAM
     // *************************************************************************
-    public static ArrayList<String> initArrayList(String path){
-        //TODO get stop words from path.
-        ArrayList<String> stopWords = new ArrayList<String>();
-        //Add some stop words for example
-        stopWords.add("from");
-        stopWords.add("to");
-        stopWords.add("of");
-        stopWords.add("a");
-        stopWords.add("rt");
-        stopWords.add("am");
-        return stopWords;
+    public static Vector<String> initArrayList(String path) throws FileNotFoundException{
+        BufferedReader br = new BufferedReader(new FileReader(path));
+        Vector<String> wordStops = new Vector<String>();
+        try {
+            String line = br.readLine();
+
+
+            while (line != null) {
+
+                wordStops.add(line);
+                line = br.readLine();
+            }
+            br.close();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+
+        return wordStops;
 
     }
     public static void main(String[] args) throws Exception {
@@ -121,7 +134,7 @@ public class TwitterExample {
             // get default test text data
             streamSource = env.fromElements(TwitterExampleData.TEXTS);
         }
-        final ArrayList<String> stopWords = initArrayList("stopwords.txt");
+        final Vector<String> stopWords = initArrayList("stopwords.txt");
 
         DataStream<Tuple2<String, Integer>> tweets = streamSource
                 // selecting English tweets and splitting to (word, 1)
@@ -148,7 +161,7 @@ public class TwitterExample {
             tweets.writeAsText(params.get("output"));
         } else {
             System.out.println("Printing result to stdout. Use --output to specify output path.");
-            //tweets.print();
+            tweets.print();
             locations.print();
         }
 
@@ -179,6 +192,14 @@ public class TwitterExample {
         /**
          * Select the language from the incoming JSON text
          */
+        public StringTokenizer getField(JsonNode jsonNode){
+            if(fieldName.equals("text")&& jsonNode.has(fieldName)){
+                return new StringTokenizer(jsonNode.get(fieldName).getValueAsText());
+            }
+
+            return new StringTokenizer(jsonNode.get("user").get(fieldName).getValueAsText());
+
+        }
         public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
             if(jsonParser == null) {
                 jsonParser = new ObjectMapper();
@@ -186,10 +207,10 @@ public class TwitterExample {
             JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
             //System.out.println(jsonNode);
             boolean isEnglish = jsonNode.has("user") && jsonNode.get("user").has("lang") && jsonNode.get("user").get("lang").getValueAsText().equals("en");
-            boolean hasText = jsonNode.has(fieldName);
-            if (isEnglish && hasText) {
 
-                StringTokenizer tokenizer = new StringTokenizer(jsonNode.get(fieldName).getValueAsText());
+            if (isEnglish) {
+
+                StringTokenizer tokenizer = getField(jsonNode);
 
                 // split the message
                 while (tokenizer.hasMoreTokens()) {
