@@ -92,6 +92,20 @@ public class TwitterExample {
         return wordStops;
 
     }
+    public static String tokenize(String sentence) {
+        StringBuffer s = new StringBuffer();
+        for (int i = 0; i < sentence.length(); i++) {
+            char c = sentence.charAt(i);
+            if (Character.isLetterOrDigit(c)) {
+                s.append(c);
+            } else if (c == ' ' || c == '\t' || c == '\r') {
+                s.append(' ');
+            } else {
+                s.append(" " + c + " ");// pad symbol with space
+            }
+        }
+        return s.toString();
+    }
     public static void main(String[] args) throws Exception {
         System.out.println("Working Directory = " +
                 System.getProperty("user.dir"));
@@ -171,7 +185,7 @@ public class TwitterExample {
         }
         FlinkKafkaProducer09<String> myProducer = new FlinkKafkaProducer09<String>(
                 "localhost:9092",            // broker list
-                "my-topic",                  // target topic
+                "test",                  // target topic
                 new SimpleStringSchema());   // serialization schema
 
 // the following is necessary for at-least-once delivery guarantee
@@ -200,7 +214,7 @@ public class TwitterExample {
      * Integer>}).
      */
     public static class ToString1 implements MapFunction<Tuple2<String, Integer>, String> {
-        @Override
+
         public String map(Tuple2<String, Integer> in) {
             return in.f0 + in.f1;
         }
@@ -234,12 +248,13 @@ public class TwitterExample {
 
             if (isEnglish) {
 
+
                 StringTokenizer tokenizer = getField(jsonNode);
 
                 // split the message
                 while (tokenizer.hasMoreTokens()) {
                     String result = tokenizer.nextToken().replaceAll("\\s*", "").toLowerCase();
-
+                    result = tokenize(result);
                     if (!result.equals("")) {
                         out.collect(new Tuple2<String,Integer>(result, 1));
                     }
