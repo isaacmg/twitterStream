@@ -177,8 +177,8 @@ public class TwitterExample {
 // the following is necessary for at-least-once delivery guarantee
         myProducer.setLogFailuresOnly(false);   // "false" by default
         myProducer.setFlushOnCheckpoint(true);  // "false" by default
-        DataStream<String> a = tweets.map(new ToString1());
-        tweets.addSink(a);
+        DataStream<String> a233 = tweets.map(new ToString1());
+        tweets.addSink(tweets);
 
 
 
@@ -199,7 +199,7 @@ public class TwitterExample {
      * splits it into multiple pairs in the form of "(word,1)" ({@code Tuple2<String,
      * Integer>}).
      */
-    public class ToString1 implements MapFunction<Tuple2<String, Integer>, Integer> {
+    public static class ToString1 implements MapFunction<Tuple2<String, Integer>, String> {
         @Override
         public String map(Tuple2<String, Integer> in) {
             return in.f0 + in.f1;
