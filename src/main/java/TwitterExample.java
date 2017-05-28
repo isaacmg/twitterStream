@@ -61,11 +61,13 @@ import static org.apache.hadoop.yarn.webapp.hamlet.HamletSpec.Media.print;
  * </ul>
  */
 public class TwitterExample {
+    private static String path;
 
     // *************************************************************************
     // PROGRAM
     // *************************************************************************
     public static Vector<String> initArrayList(String path) throws FileNotFoundException{
+        TwitterExample.path = path;
         BufferedReader br = new BufferedReader(new FileReader(path));
         Vector<String> wordStops = new Vector<String>();
         try {
