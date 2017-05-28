@@ -177,8 +177,8 @@ public class TwitterExample {
 // the following is necessary for at-least-once delivery guarantee
         myProducer.setLogFailuresOnly(false);   // "false" by default
         myProducer.setFlushOnCheckpoint(true);  // "false" by default
-        DataStream<String> a233 = tweets.map(new ToString1());
-        tweets.addSink(tweets);
+        DataStream<String> crap = tweets.map(new ToString1());
+        crap.addSink(myProducer);
 
 
 
