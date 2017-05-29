@@ -1,6 +1,7 @@
 # Custom Twitter Stream and Analysis with Apache Flink
 
 [![Build Status](https://travis-ci.org/isaacmg/twitterStream.svg?branch=master)](https://travis-ci.org/isaacmg/twitterStream)
+
 This repository is meant to show how to implement Twitter streaming with Apache Flink. By default Apache Flink gets all Tweets in real time, however by implementing the EndPointInitializer you can get just the relevant tweets. This is what Filter.java does. To use Filter.java for instance, you would do something like the following
 ```Java 
 List relevantWords<String> = new ArrayList<Strings>;
