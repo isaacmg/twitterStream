@@ -34,8 +34,6 @@ import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.List;
@@ -223,6 +221,7 @@ public class TwitterExample {
             return in.f0 + in.f1;
         }
     }
+   
 
     public static class SelectEnglishAndTokenizeFlatMap implements FlatMapFunction<String, Tuple2<String, Integer>> {
         private static final long serialVersionUID = 1L;
