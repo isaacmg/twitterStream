@@ -96,12 +96,11 @@ public class TwitterExample {
         StringBuffer s = new StringBuffer();
         for (int i = 0; i < sentence.length(); i++) {
             char c = sentence.charAt(i);
-            if (Character.isLetterOrDigit(c)) {
+
+            if (Character.isLetter(c)) {
                 s.append(c);
             } else if (c == ' ' || c == '\t' || c == '\r') {
                 s.append(' ');
-            } else {
-                s.append(" " + c + " ");// pad symbol with space
             }
         }
         return s.toString();
@@ -135,11 +134,10 @@ public class TwitterExample {
                 ) {
 
             //streamSource = env.addSource(new TwitterSource(params.getProperties()));
-            List<String> theList = new ArrayList<String>();
+            Vector<String> theList = initArrayList("words.txt");
 
             //Find tweets about Trump and Clinton
-            theList.add("trump");
-            theList.add("clinton");
+
             TwitterSource twitterA = new TwitterSource(params.getProperties());
             TwitterSourceOpt.FilterEndpoint i = new TwitterSourceOpt.FilterEndpoint(theList);
             twitterA.setCustomEndpointInitializer(i);
