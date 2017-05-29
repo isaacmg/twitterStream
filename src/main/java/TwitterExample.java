@@ -105,6 +105,19 @@ public class TwitterExample {
         }
         return s.toString();
     }
+    public static FlinkKafkaProducer09 initKafkaProducer(String host, String topic){
+        FlinkKafkaProducer09<String> myProducer = new FlinkKafkaProducer09<String>(
+                host,            // broker list
+                topic,                  // target topic
+                new SimpleStringSchema());   // serialization schema
+
+       // the following is necessary for at-least-once delivery guarantee
+        myProducer.setLogFailuresOnly(false);   // "false" by default
+        myProducer.setFlushOnCheckpoint(true);  // "false" by default
+        return myProducer;
+
+    }
+
     public static void main(String[] args) throws Exception {
         System.out.println("Working Directory = " +
                 System.getProperty("user.dir"));
@@ -181,14 +194,7 @@ public class TwitterExample {
             tweets.print();
             locations.print();
         }
-        FlinkKafkaProducer09<String> myProducer = new FlinkKafkaProducer09<String>(
-                "localhost:9092",            // broker list
-                "test",                  // target topic
-                new SimpleStringSchema());   // serialization schema
-
-// the following is necessary for at-least-once delivery guarantee
-        myProducer.setLogFailuresOnly(false);   // "false" by default
-        myProducer.setFlushOnCheckpoint(true);  // "false" by default
+        FlinkKafkaProducer09 myProducer = initKafkaProducer("localhost:9090","test");
         DataStream<String> crap = tweets.map(new ToString1());
         crap.addSink(myProducer);
 

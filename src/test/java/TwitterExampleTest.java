@@ -21,8 +21,12 @@ public class TwitterExampleTest {
     public  void testEqualize(){
         TwitterExample a = new TwitterExample();
         String one = a.tokenize("test23123...");
-        assertEquals("string one should be test", a.tokenize(one), "test");
+
         assertEquals("string two should be whatwe", a.tokenize("whatwe"), "whatwe");
+
+    }
+    @Test
+    public void testStream(){
 
     }
 

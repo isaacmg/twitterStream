@@ -25,5 +25,9 @@ public class TwitterExampleTest {
         assertEquals("string two should be whatwe", a.tokenize("whatwe"), "whatwe");
 
     }
+    @Test
+    public void testStream(){
+
+    }
 
 }
