@@ -18,13 +18,20 @@
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
+
+import org.apache.flink.streaming.api.datastream.WindowedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.AscendingTimestampExtractor;
+import org.apache.flink.streaming.api.functions.TimestampAssigner;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.connectors.twitter.TwitterSource;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer09;
-
+import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 import org.apache.flink.util.Collector;
 import org.codehaus.jackson.JsonNode;
@@ -90,6 +97,8 @@ public class TwitterExample {
         return wordStops;
 
     }
+
+
     public static String tokenize(String sentence) {
         StringBuffer s = new StringBuffer();
         for (int i = 0; i < sentence.length(); i++) {
@@ -131,12 +140,14 @@ public class TwitterExample {
         env.getConfig().setGlobalJobParameters(params);
 
         env.setParallelism(params.getInt("parallelism", 1));
+        //env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         //DataStream<String> streamSource = env.addSource(new TwitterSource("/myFile.properties"));
         System.out.println(" This is the param" + params.getProperties());
 
         // get input data
         DataStream<String> streamSource;
+
 
         if (params.has(TwitterSource.CONSUMER_KEY) &&
                 params.has(TwitterSource.CONSUMER_SECRET) &&
@@ -166,21 +177,23 @@ public class TwitterExample {
 
         DataStream<Tuple2<String, Integer>> tweets = streamSource
                 // selecting English tweets and splitting to (word, 1)
-                .flatMap(new SelectEnglishAndTokenizeFlatMap("text"))
+                .flatMap(new SelectEnglishAndTokenizeFlatMap("text"));
                 // group by words and sum their occurrences
-                .keyBy(0).sum(1);
         //Get locations
         DataStream<Tuple2<String, Integer>> locations = streamSource.flatMap(new SelectEnglishAndTokenizeFlatMap("location")).keyBy(0).sum(1);
         //Filter out stop words and words with less than 19 mentions
-        tweets = tweets.filter(new FilterFunction<Tuple2<String, Integer>>() {
-            public boolean filter(Tuple2<String, Integer> value) { int s = value.getField(1); return s > 19; }
-        }).filter(new FilterFunction<Tuple2<String, Integer>>(){
+        tweets = tweets.filter(new FilterFunction<Tuple2<String, Integer>>(){
             public boolean filter(Tuple2<String,Integer> value){
                 String word = value.getField(0);
                 return !stopWords.contains(word);
 
             }
         });
+        DataStream<Tuple2<String,Integer>> dataWindowKafka = tweets.keyBy(0).timeWindow(Time.seconds(10)).sum(1).filter(new FilterFunction<Tuple2<String, Integer>>() {
+            public boolean filter(Tuple2<String, Integer> value) { int s = value.getField(1); return s > 11; }
+        });
+
+
 
 
 
@@ -189,12 +202,13 @@ public class TwitterExample {
             tweets.writeAsText(params.get("output"));
         } else {
             System.out.println("Printing result to stdout. Use --output to specify output path.");
-            tweets.print();
-            locations.print();
+            //tweets.print();
+            //locations.print();
+            dataWindowKafka.print();
         }
-        FlinkKafkaProducer09 myProducer = initKafkaProducer("localhost:9090","test");
-        DataStream<String> crap = tweets.map(new ToString1());
-        crap.addSink(myProducer);
+        //FlinkKafkaProducer09 myProducer = initKafkaProducer("localhost:9090","test");
+        //DataStream<String> crap = tweets.map(new ToString1());
+        //crap.addSink(myProducer);
 
 
 
@@ -251,9 +265,7 @@ public class TwitterExample {
 
             if (isEnglish) {
 
-
                 StringTokenizer tokenizer = getField(jsonNode);
-
                 // split the message
                 while (tokenizer.hasMoreTokens()) {
                     String result = tokenizer.nextToken().replaceAll("\\s*", "").toLowerCase();
