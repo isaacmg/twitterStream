@@ -148,7 +148,6 @@ public class TwitterExample {
         // get input data
         DataStream<String> streamSource;
 
-
         if (params.has(TwitterSource.CONSUMER_KEY) &&
                 params.has(TwitterSource.CONSUMER_SECRET) &&
                 params.has(TwitterSource.TOKEN) &&
@@ -159,7 +158,6 @@ public class TwitterExample {
             Vector<String> theList = initArrayList("words.txt");
 
             //Find tweets about Trump and Clinton
-
             TwitterSource twitterA = new TwitterSource(params.getProperties());
             TwitterSourceOpt.FilterEndpoint i = new TwitterSourceOpt.FilterEndpoint(theList);
             twitterA.setCustomEndpointInitializer(i);
@@ -178,10 +176,10 @@ public class TwitterExample {
         DataStream<Tuple2<String, Integer>> tweets = streamSource
                 // selecting English tweets and splitting to (word, 1)
                 .flatMap(new SelectEnglishAndTokenizeFlatMap("text"));
-                // group by words and sum their occurrences
+
         //Get locations
         DataStream<Tuple2<String, Integer>> locations = streamSource.flatMap(new SelectEnglishAndTokenizeFlatMap("location")).keyBy(0).sum(1);
-        //Filter out stop words and words with less than 19 mentions
+        //Filter out stop words
         tweets = tweets.filter(new FilterFunction<Tuple2<String, Integer>>(){
             public boolean filter(Tuple2<String,Integer> value){
                 String word = value.getField(0);
@@ -189,6 +187,7 @@ public class TwitterExample {
 
             }
         });
+        //
         DataStream<Tuple2<String,Integer>> dataWindowKafka = tweets.keyBy(0).timeWindow(Time.seconds(10)).sum(1).filter(new FilterFunction<Tuple2<String, Integer>>() {
             public boolean filter(Tuple2<String, Integer> value) { int s = value.getField(1); return s > 11; }
         });
