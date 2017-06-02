@@ -192,14 +192,10 @@ public class TwitterExample {
         DataStream<Tuple2<String,Integer>> dataWindowKafka = tweets.keyBy(0).timeWindow(Time.seconds(10)).sum(1).filter(new FilterFunction<Tuple2<String, Integer>>() {
             public boolean filter(Tuple2<String, Integer> value) { int s = value.getField(1); return s > 11; }
         });
-        DataStream<Tuple2<String,Integer>> withTimestampsAndWatermarks =
-                tweets.assignTimestampsAndWatermarks(new AscendingTimestampExtractor<Tuple2<String,Integer>>() {
 
-                    @Override
-                    public long extractAscendingTimestamp(Tuple2<String,Integer> element) {
-                        return System.currentTimeMillis();
-                    }
-                });
+
+        dataWindowKafka.map(new JSONIZEString());
+
 
 
 
@@ -215,10 +211,11 @@ public class TwitterExample {
             //locations.print();
             dataWindowKafka.print();
         }
-        //FlinkKafkaProducer09 myProducer = initKafkaProducer("localhost:9090","test");
-        //DataStream<String> crap = tweets.map(new ToString1());
-        //crap.addSink(myProducer);
 
+        //Flink Kafka producer
+        FlinkKafkaProducer09 myProducer = initKafkaProducer("localhost:9090","test");
+        dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
+        
 
 
         // execute program
@@ -238,7 +235,7 @@ public class TwitterExample {
      * splits it into multiple pairs in the form of "(word,1)" ({@code Tuple2<String,
      * Integer>}).
      */
-    public static class ToString1 implements MapFunction<Tuple2<String, Integer>, String> {
+    public static class JSONIZEString implements MapFunction<Tuple2<String, Integer>, String> {
 
         public String map(Tuple2<String, Integer> in) {
 
@@ -246,6 +243,7 @@ public class TwitterExample {
             String jsonString = Json.createObjectBuilder()
                     .add("word", in.f0)
                     .add("count", in.f1)
+                    .add("time", System.currentTimeMillis())
                     .build()
                     .toString();
 
