@@ -38,6 +38,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 
+import javax.json.Json;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -191,6 +192,15 @@ public class TwitterExample {
         DataStream<Tuple2<String,Integer>> dataWindowKafka = tweets.keyBy(0).timeWindow(Time.seconds(10)).sum(1).filter(new FilterFunction<Tuple2<String, Integer>>() {
             public boolean filter(Tuple2<String, Integer> value) { int s = value.getField(1); return s > 11; }
         });
+        DataStream<Tuple2<String,Integer>> withTimestampsAndWatermarks =
+                tweets.assignTimestampsAndWatermarks(new AscendingTimestampExtractor<Tuple2<String,Integer>>() {
+
+                    @Override
+                    public long extractAscendingTimestamp(Tuple2<String,Integer> element) {
+                        return System.currentTimeMillis();
+                    }
+                });
+
 
 
 
@@ -231,7 +241,17 @@ public class TwitterExample {
     public static class ToString1 implements MapFunction<Tuple2<String, Integer>, String> {
 
         public String map(Tuple2<String, Integer> in) {
-            return in.f0 + in.f1;
+
+
+            String jsonString = Json.createObjectBuilder()
+                    .add("word", in.f0)
+                    .add("count", in.f1)
+                    .build()
+                    .toString();
+
+            System.out.println(jsonString);
+
+            return jsonString;
         }
     }
    
