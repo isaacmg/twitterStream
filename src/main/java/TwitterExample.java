@@ -123,8 +123,7 @@ public class TwitterExample {
     }
 
     public static void main(String[] args) throws Exception {
-        System.out.println("Working Directory = " +
-                System.getProperty("user.dir"));
+        
         // Checking input parameters
         final ParameterTool params = ParameterTool.fromPropertiesFile("myFile.properties");
         System.out.println("Usage: TwitterExample [--output <path>] " +
@@ -208,7 +207,7 @@ public class TwitterExample {
             dataWindowKafka.print();
         }
 
-        //Flink Kafka producer
+        //Initialize a Kafka producer that will be consumed by D3.js and DB.
         FlinkKafkaProducer09 myProducer = initKafkaProducer("localhost:9090","test");
         dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
 
