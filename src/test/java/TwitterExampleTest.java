@@ -3,6 +3,8 @@ import org.junit.Test;
 import java.util.Vector;
 
 import static org.junit.Assert.*;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer09;
+import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 
 /**
  * Created by isaac on 5/28/17.
