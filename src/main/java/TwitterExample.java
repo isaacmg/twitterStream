@@ -23,7 +23,6 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
-
 import org.apache.flink.streaming.api.datastream.WindowedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.AscendingTimestampExtractor;
@@ -37,16 +36,13 @@ import org.apache.flink.util.Collector;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
-
 import javax.json.Json;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import java.util.List;
 
-import static org.apache.hadoop.yarn.webapp.hamlet.HamletSpec.Media.print;
 
 /**
  * Implements the "TwitterStream" program that computes a most used word
@@ -215,11 +211,12 @@ public class TwitterExample {
         //Flink Kafka producer
         FlinkKafkaProducer09 myProducer = initKafkaProducer("localhost:9090","test");
         dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
-        
+
 
 
         // execute program
         env.execute("Twitter Streaming Example");
+
     }
 
     // *************************************************************************
@@ -264,7 +261,7 @@ public class TwitterExample {
         /**
          * Select the language from the incoming JSON text
          */
-        public StringTokenizer getField(JsonNode jsonNode){
+        private StringTokenizer getField(JsonNode jsonNode){
             if(fieldName.equals("text")&& jsonNode.has(fieldName)){
                 return new StringTokenizer(jsonNode.get(fieldName).getValueAsText());
             }
@@ -277,7 +274,7 @@ public class TwitterExample {
                 jsonParser = new ObjectMapper();
             }
             JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
-            //System.out.println(jsonNode);
+
             boolean isEnglish = jsonNode.has("user") && jsonNode.get("user").has("lang") && jsonNode.get("user").get("lang").getValueAsText().equals("en");
 
             if (isEnglish) {
