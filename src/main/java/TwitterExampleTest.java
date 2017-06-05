@@ -1,3 +1,4 @@
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer09;
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 import org.junit.Test;
@@ -11,6 +12,7 @@ import static org.junit.Assert.*;
  */
 public class TwitterExampleTest {
     TwitterExample a = new TwitterExample();
+    TwitterExample.JSONIZEString j = new TwitterExample.JSONIZEString();
     @Test
     public void testInitArrayList() throws Exception {
         Vector<String> theList = new Vector<String>();
@@ -29,18 +31,8 @@ public class TwitterExampleTest {
 
     }
     @Test
-    public void testFlinkInit(){
-        FlinkKafkaProducer09<String> prod = a.initKafkaProducer("localhost:9090","test");
+    public void testJSONIZEString(){
 
-        FlinkKafkaProducer09<String> myProducer = new FlinkKafkaProducer09<String>(
-                "localhost:9090",            // broker list
-                "test",                  // target topic
-                new SimpleStringSchema());   // serialization schema
-
-        // the following is necessary for at-least-once delivery guarantee
-        myProducer.setLogFailuresOnly(false);   // "false" by default
-        myProducer.setFlushOnCheckpoint(true);
-        assertEquals("kafka producer should be equal", prod,myProducer);
 
     }
 
