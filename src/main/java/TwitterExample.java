@@ -37,9 +37,8 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import javax.json.Json;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -73,6 +72,7 @@ public class TwitterExample {
     // *************************************************************************
     public static Vector<String> initArrayList(String path) throws FileNotFoundException{
         TwitterExample.path = path;
+        
         BufferedReader br = new BufferedReader(new FileReader(path));
         Vector<String> wordStops = new Vector<String>();
         try {
@@ -123,8 +123,14 @@ public class TwitterExample {
     }
 
     public static void main(String[] args) throws Exception {
-        
+
         // Checking input parameters
+        //Build params
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+        InputStream is = classloader.getResourceAsStream("myFile.properties");
+        // copy config from Java resource to a file
+        File configOnDisk = new File("myFile.properties");
+        Files.copy(classloader.getResourceAsStream("myFile.properties"), configOnDisk.toPath());
         final ParameterTool params = ParameterTool.fromPropertiesFile("myFile.properties");
         System.out.println("Usage: TwitterExample [--output <path>] " +
                 "[--twitter-source.consumerKey <key> --twitter-source.consumerSecret <secret> --twitter-source.token <token> --twitter-source.tokenSecret <tokenSecret>]");
