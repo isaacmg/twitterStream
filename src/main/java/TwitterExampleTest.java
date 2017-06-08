@@ -19,7 +19,8 @@ public class TwitterExampleTest {
         theList.add("a");
         theList.add("word");
         TwitterExample a = new TwitterExample();
-        assertEquals("theList must be a word",a.initArrayList("test.txt"),theList);
+        assertEquals("theList must be a word",a.initArrayList("test.txt", new ClassLoader() {
+        }),theList);
 
     }
     @Test

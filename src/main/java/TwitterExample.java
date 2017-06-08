@@ -39,9 +39,10 @@ import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import javax.json.Json;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.StringTokenizer;
 import java.util.Vector;
-
+//Code
 
 /**
  * Implements the "TwitterStream" program that computes a most used word
@@ -70,10 +71,12 @@ public class TwitterExample {
     // *************************************************************************
     // PROGRAM
     // *************************************************************************
-    public static Vector<String> initArrayList(String path) throws FileNotFoundException{
+    public static Vector<String> initArrayList(String path, ClassLoader cl) throws FileNotFoundException, UnsupportedEncodingException{
+
         TwitterExample.path = path;
-        
-        BufferedReader br = new BufferedReader(new FileReader(path));
+        InputStream is = cl.getResourceAsStream(path);
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
         Vector<String> wordStops = new Vector<String>();
         try {
             String line = br.readLine();
@@ -89,8 +92,7 @@ public class TwitterExample {
         catch(Exception e){
             e.printStackTrace();
         }
-
-
+        System.out.print(wordStops);
         return wordStops;
 
     }
@@ -130,7 +132,7 @@ public class TwitterExample {
         InputStream is = classloader.getResourceAsStream("myFile.properties");
         // copy config from Java resource to a file
         File configOnDisk = new File("myFile.properties");
-        Files.copy(classloader.getResourceAsStream("myFile.properties"), configOnDisk.toPath());
+        Files.copy(classloader.getResourceAsStream("myFile.properties"), configOnDisk.toPath(), StandardCopyOption.REPLACE_EXISTING);
         final ParameterTool params = ParameterTool.fromPropertiesFile("myFile.properties");
         System.out.println("Usage: TwitterExample [--output <path>] " +
                 "[--twitter-source.consumerKey <key> --twitter-source.consumerSecret <secret> --twitter-source.token <token> --twitter-source.tokenSecret <tokenSecret>]");
@@ -157,7 +159,7 @@ public class TwitterExample {
                 ) {
 
             //streamSource = env.addSource(new TwitterSource(params.getProperties()));
-            Vector<String> theList = initArrayList("words.txt");
+            Vector<String> theList = initArrayList("words.txt", classloader);
 
             //Find tweets about Trump and Clinton
             TwitterSource twitterA = new TwitterSource(params.getProperties());
@@ -173,7 +175,7 @@ public class TwitterExample {
             // get default test text data
             streamSource = env.fromElements(TwitterExampleData.TEXTS);
         }
-        final Vector<String> stopWords = initArrayList("stopwords.txt");
+        final Vector<String> stopWords = initArrayList("stopwords.txt", classloader);
 
         DataStream<Tuple2<String, Integer>> tweets = streamSource
                 // selecting English tweets and splitting to (word, 1)
@@ -191,12 +193,13 @@ public class TwitterExample {
         });
         //
         DataStream<Tuple2<String,Integer>> dataWindowKafka = tweets.keyBy(0).timeWindow(Time.seconds(10)).sum(1).filter(new FilterFunction<Tuple2<String, Integer>>() {
-            public boolean filter(Tuple2<String, Integer> value) { int s = value.getField(1); return s > 11; }
+            public boolean filter(Tuple2<String, Integer> value) { int s = value.getField(1); return s > 10; }
         });
 
 
         dataWindowKafka.map(new JSONIZEString());
 
+        dataWindowKafka.print();
 
 
 
@@ -215,7 +218,7 @@ public class TwitterExample {
 
         //Initialize a Kafka producer that will be consumed by D3.js and DB.
         FlinkKafkaProducer09 myProducer = initKafkaProducer("localhost:9090","test");
-        dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
+        //dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
 
 
 

@@ -29,7 +29,9 @@ public class TwitterSourceOpt extends TwitterSource  {
         public StreamingEndpoint createEndpoint(){
 
             StatusesFilterEndpoint status1 = new StatusesFilterEndpoint();
-            status1.trackTerms(terms);
+
+            if(terms!=null){status1.trackTerms(terms);}
+
             return status1;
         }
 
