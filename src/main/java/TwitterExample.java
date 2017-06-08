@@ -42,7 +42,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.StringTokenizer;
 import java.util.Vector;
-//Code
+
 
 /**
  * Implements the "TwitterStream" program that computes a most used word
@@ -125,8 +125,7 @@ public class TwitterExample {
 
     public static void main(String[] args) throws Exception {
 
-        // Checking input parameters
-        //Build params
+        //Use  class loader to load the file
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         InputStream is = classloader.getResourceAsStream("myFile.properties");
         // copy config from Java resource to a file
@@ -198,7 +197,7 @@ public class TwitterExample {
 
         dataWindowKafka.map(new JSONIZEString());
 
-        dataWindowKafka.print();
+
 
 
 
