@@ -66,14 +66,13 @@ import java.util.Vector;
  * </ul>
  */
 public class TwitterExample {
-    private static String path;
+
 
     // *************************************************************************
     // PROGRAM
     // *************************************************************************
     public static Vector<String> initArrayList(String path, ClassLoader cl) throws FileNotFoundException, UnsupportedEncodingException{
 
-        TwitterExample.path = path;
         InputStream is = cl.getResourceAsStream(path);
 
         BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
