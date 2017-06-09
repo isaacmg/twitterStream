@@ -28,6 +28,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.AscendingTimestampExtractor;
 import org.apache.flink.streaming.api.functions.TimestampAssigner;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
 import org.apache.flink.streaming.connectors.twitter.TwitterSource;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer09;
 import org.apache.flink.streaming.api.windowing.time.Time;
@@ -35,7 +36,6 @@ import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 import org.apache.flink.util.Collector;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import javax.json.Json;
 import java.io.*;
 import java.nio.file.Files;
@@ -109,9 +109,10 @@ public class TwitterExample {
             }
         }
         return s.toString();
+
     }
-    public static FlinkKafkaProducer09 initKafkaProducer(String host, String topic){
-        FlinkKafkaProducer09<String> myProducer = new FlinkKafkaProducer09<String>(
+    public static FlinkKafkaProducer010 initKafkaProducer(String host, String topic){
+        FlinkKafkaProducer010<String> myProducer = new FlinkKafkaProducer010<String>(
                 host,            // broker list
                 topic,                  // target topic
                 new SimpleStringSchema());   // serialization schema
@@ -195,7 +196,11 @@ public class TwitterExample {
         });
 
 
+
         dataWindowKafka.map(new JSONIZEString());
+
+
+
 
 
 
@@ -215,8 +220,8 @@ public class TwitterExample {
         }
 
         //Initialize a Kafka producer that will be consumed by D3.js and DB.
-        FlinkKafkaProducer09 myProducer = initKafkaProducer("localhost:9090","test");
-        //dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
+        FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9090","test");
+        dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
 
 
 
