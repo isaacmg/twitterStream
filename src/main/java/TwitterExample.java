@@ -30,7 +30,6 @@ import org.apache.flink.streaming.api.functions.TimestampAssigner;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
 import org.apache.flink.streaming.connectors.twitter.TwitterSource;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer09;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 import org.apache.flink.util.Collector;
