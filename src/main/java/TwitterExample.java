@@ -23,6 +23,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.QueryableStateStream;
 import org.apache.flink.streaming.api.datastream.WindowedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.AscendingTimestampExtractor;
@@ -156,7 +157,7 @@ public class TwitterExample {
                 params.has(TwitterSource.TOKEN_SECRET)
                 ) {
 
-            //streamSource = env.addSource(new TwitterSource(params.getProperties()));
+
             Vector<String> theList = initArrayList("words.txt", classloader);
 
             //Find tweets about Trump and Clinton
@@ -175,12 +176,14 @@ public class TwitterExample {
         }
         final Vector<String> stopWords = initArrayList("stopwords.txt", classloader);
 
+
         DataStream<Tuple2<String, Integer>> tweets = streamSource
                 // selecting English tweets and splitting to (word, 1)
                 .flatMap(new SelectEnglishAndTokenizeFlatMap("text"));
 
         //Get locations
         DataStream<Tuple2<String, Integer>> locations = streamSource.flatMap(new SelectEnglishAndTokenizeFlatMap("location")).keyBy(0).sum(1);
+        tweets.keyBy(0).asQueryableState("shit");
         //Filter out stop words
         tweets = tweets.filter(new FilterFunction<Tuple2<String, Integer>>(){
             public boolean filter(Tuple2<String,Integer> value){
@@ -189,7 +192,7 @@ public class TwitterExample {
 
             }
         });
-        //
+
         DataStream<Tuple2<String,Integer>> dataWindowKafka = tweets.keyBy(0).timeWindow(Time.seconds(10)).sum(1).filter(new FilterFunction<Tuple2<String, Integer>>() {
             public boolean filter(Tuple2<String, Integer> value) { int s = value.getField(1); return s > 10; }
         });
@@ -213,12 +216,11 @@ public class TwitterExample {
             tweets.writeAsText(params.get("output"));
         } else {
             System.out.println("Printing result to stdout. Use --output to specify output path.");
-            //tweets.print();
-            //locations.print();
+
             dataWindowKafka.print();
         }
 
-        //Initialize a Kafka producer that will be consumed by D3.js and DB.
+        //Initialize a Kafka producer that will be consumed by D3.js and (possibly the DB).
         FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9090","test");
         dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
 
@@ -295,7 +297,7 @@ public class TwitterExample {
                     String result = tokenizer.nextToken().replaceAll("\\s*", "").toLowerCase();
                     result = tokenize(result);
                     if (!result.equals("")) {
-                        out.collect(new Tuple2<String,Integer>(result, 1));
+                        out.collect(new Tuple2<>(result, 1));
                     }
                 }
             }
