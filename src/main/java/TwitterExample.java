@@ -217,11 +217,11 @@ public class TwitterExample {
         } else {
             System.out.println("Printing result to stdout. Use --output to specify output path.");
 
-            dataWindowKafka.print();
+
         }
 
         //Initialize a Kafka producer that will be consumed by D3.js and (possibly the DB).
-        FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9090","test");
+        FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");
         dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
 
 
@@ -245,6 +245,7 @@ public class TwitterExample {
      * Integer>}).
      */
     public static class JSONIZEString implements MapFunction<Tuple2<String, Integer>, String> {
+
 
         public String map(Tuple2<String, Integer> in) {
 
