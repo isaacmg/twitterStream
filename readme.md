@@ -14,4 +14,5 @@ Filter f = new Filter(relevantWords,null,null);
 ```
 Over the next few weeks I will be adding more details and some more examples. Feel free to reach out if you have any questions/issues.
 [Article on using Flink to build a dashboard](https://medium.com/towards-data-science/building-a-realtime-dashboard-with-flink-the-backend-a9393062de92)
+
 **More info to come soon**
