@@ -232,7 +232,8 @@ public class TwitterExample {
 
         //Transition to a table environment
         StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
-        tableEnv.registerDataStream("myTable2", dataWindowKafka, "myLong, myString");
+        tableEnv.registerDataStream("myTable2", dataWindowKafka, "word, count");
+        Table tapiResult = tableEnv.scan("myTable2");
         
 
 
