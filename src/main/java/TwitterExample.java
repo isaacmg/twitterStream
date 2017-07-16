@@ -33,6 +33,9 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
 import org.apache.flink.streaming.connectors.twitter.TwitterSource;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
+import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.TableEnvironment;
+import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.util.Collector;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -211,6 +214,9 @@ public class TwitterExample {
 
 
 
+
+
+
         // emit result
         if (params.has("output")) {
             tweets.writeAsText(params.get("output"));
@@ -223,6 +229,11 @@ public class TwitterExample {
         //Initialize a Kafka producer that will be consumed by D3.js and (possibly the DB).
         FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");
         dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
+
+        //Transition to a table environment
+        StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
+        tableEnv.registerDataStream("myTable2", dataWindowKafka, "myLong, myString");
+        
 
 
 
