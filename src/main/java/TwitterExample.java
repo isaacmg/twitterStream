@@ -18,6 +18,7 @@
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -30,12 +31,19 @@ import org.apache.flink.streaming.api.functions.AscendingTimestampExtractor;
 import org.apache.flink.streaming.api.functions.TimestampAssigner;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducerBase;
+import org.apache.flink.streaming.connectors.kafka.KafkaTableSink;
+import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.streaming.connectors.twitter.TwitterSource;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.util.serialization.SerializationSchema;
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.sinks.CsvTableSink;
+import org.apache.flink.table.sinks.TableSink;
+import org.apache.flink.types.Row;
 import org.apache.flink.util.Collector;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -43,6 +51,7 @@ import javax.json.Json;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -217,6 +226,7 @@ public class TwitterExample {
 
 
 
+
         // emit result
         if (params.has("output")) {
             tweets.writeAsText(params.get("output"));
@@ -228,13 +238,19 @@ public class TwitterExample {
 
         //Initialize a Kafka producer that will be consumed by D3.js and (possibly the DB).
         FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");
-        dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
+        //dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
 
         //Transition to a table environment
+
         StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
-        tableEnv.registerDataStream("myTable2", dataWindowKafka, "word, count");
-        Table tapiResult = tableEnv.scan("myTable2");
-        
+       // tableEnv.registerDataStream("myTable2", dataWindowKafka, "word, count");
+        Table table2 = tableEnv.fromDataStream(dataWindowKafka, "word, count");
+        System.out.println("This is the tapi " + table2.where("count>5"));
+        TableSink sink = new CsvTableSink("path.csv", "|");
+        table2.writeToSink(sink);
+
+
+        //tapiResult.writeToSink(theSink);
 
 
 
