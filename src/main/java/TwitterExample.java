@@ -235,9 +235,10 @@ public class TwitterExample {
 
 
         }
-
+        //Temporarily disabled Kafka for testing purposes uncomment the following to renable
         //Initialize a Kafka producer that will be consumed by D3.js and (possibly the DB).
-        FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");
+        //FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");
+
         //dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
 
         //Transition to a table environment
@@ -246,7 +247,13 @@ public class TwitterExample {
        // tableEnv.registerDataStream("myTable2", dataWindowKafka, "word, count");
         Table table2 = tableEnv.fromDataStream(dataWindowKafka, "word, count");
         System.out.println("This is the tapi " + table2.where("count>5"));
-        TableSink sink = new CsvTableSink("path.csv", "|");
+        TableSink sink = new CsvTableSink("path.csv", ",");
+        String[] fieldNames = {"word", "count"};
+        // Not working
+        TypeInformation<?>[] eew = {TypeInformation.of(String.class), TypeInformation.of(Integer.class) };
+        sink.configure(fieldNames,eew);
+        
+
         table2.writeToSink(sink);
 
 
