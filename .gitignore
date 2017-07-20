@@ -49,3 +49,5 @@ Temporary Items
 myFile.properties
 *.class
 twitterStream.iml
+*.csv
+*.html

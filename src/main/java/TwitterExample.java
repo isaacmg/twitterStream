@@ -19,7 +19,6 @@ import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -32,6 +31,7 @@ import org.apache.flink.streaming.api.functions.TimestampAssigner;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducerBase;
+import org.apache.flink.streaming.connectors.kafka.Kafka09JsonTableSink;
 import org.apache.flink.streaming.connectors.kafka.KafkaTableSink;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.streaming.connectors.twitter.TwitterSource;
@@ -235,7 +235,7 @@ public class TwitterExample {
 
 
         }
-        //Temporarily disabled Kafka for testing purposes uncomment the following to renable
+        //Temporarily disabled Kafka for testing purposes uncomment the following to re-enable
         //Initialize a Kafka producer that will be consumed by D3.js and (possibly the DB).
         //FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");
 
@@ -246,13 +246,15 @@ public class TwitterExample {
         StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
        // tableEnv.registerDataStream("myTable2", dataWindowKafka, "word, count");
         Table table2 = tableEnv.fromDataStream(dataWindowKafka, "word, count");
-        System.out.println("This is the tapi " + table2.where("count>5"));
+        System.out.println("This is the tapi" + table2.where("count>5"));
         TableSink sink = new CsvTableSink("path.csv", ",");
+
+
         String[] fieldNames = {"word", "count"};
         // Not working
         TypeInformation<?>[] eew = {TypeInformation.of(String.class), TypeInformation.of(Integer.class) };
         sink.configure(fieldNames,eew);
-        
+
 
         table2.writeToSink(sink);
 
