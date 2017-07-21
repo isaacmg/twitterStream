@@ -5,6 +5,7 @@ import org.apache.flink.streaming.connectors.kafka.partitioner.KafkaPartitioner;
 import org.apache.flink.streaming.util.serialization.AvroRowSerializationSchema;
 import org.apache.flink.streaming.util.serialization.SerializationSchema;
 import org.apache.flink.types.Row;
+import org.apache.avro.specific.SpecificRecord;
 
 import java.util.Properties;
 
@@ -23,7 +24,9 @@ public class Kafka010AvroSink extends KafkaTableSink {
     @Override
     protected SerializationSchema<Row> createSerializationSchema(String[] strings) {
 
+        
         return null;
+
         //return new AvroRowSerializationSchema(new AVroSp);
     }
 
