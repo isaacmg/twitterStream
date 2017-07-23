@@ -135,7 +135,7 @@ public class TwitterExample {
         return myProducer;
 
     }
-    public static Kafka09JsonTableSink makeTableSink(String topic, Properties myProperties){
+    public static Kafka09JsonTableSink makeTableSink(String theTopic, Properties myProperties){
         Properties theProperties = new Properties();
         FlinkKafkaPartitioner<Row> theRow = new FlinkKafkaPartitioner<Row>() {
             @Override
@@ -144,7 +144,7 @@ public class TwitterExample {
             }
         };
 
-        return  new Kafka09JsonTableSink("twitter_table",theProperties, theRow);
+        return  new Kafka09JsonTableSink(theTopic,theProperties, theRow);
 
     }
 
@@ -183,7 +183,7 @@ public class TwitterExample {
                 ) {
 
 
-            Vector<String> theList = initArrayList("words.txt", classloader);
+            final Vector<String> theList = initArrayList("words.txt", classloader);
 
             //Find tweets about Trump and Clinton
             TwitterSource twitterA = new TwitterSource(params.getProperties());
@@ -222,14 +222,9 @@ public class TwitterExample {
             public boolean filter(Tuple2<String, Integer> value) { int s = value.getField(1); return s > 10; }
         });
 
-
-
         dataWindowKafka.map(new JSONIZEString());
 
-
-
-
-        // emit result
+        // marked for deletion
         if (params.has("output")) {
             tweets.writeAsText(params.get("output"));
         } else {
@@ -238,9 +233,8 @@ public class TwitterExample {
 
         }
         //Temporarily disabled Kafka for testing purposes uncomment the following to re-enable
-        //Initialize a Kafka producer that will be consumed by D3.js and (possibly the DB).
+        //Initialize a Kafka producer that will be consumed by D3.js and (possibly the database).
         //FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");
-
         //dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
 
         //Transition to a table environment
@@ -255,9 +249,6 @@ public class TwitterExample {
         String[] fieldNames = {"word", "count"};
         // Not working
 
-
-        TypeInformation<?>[] eew = {TypeInformation.of(String.class), TypeInformation.of(Integer.class) };
-        sink.configure(fieldNames,eew);
 
 
         table2.writeToSink(sink);
