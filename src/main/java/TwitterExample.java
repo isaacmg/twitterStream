@@ -135,6 +135,19 @@ public class TwitterExample {
         return myProducer;
 
     }
+    public static Kafka09JsonTableSink makeTableSink(String topic, Properties myProperties){
+        Properties theProperties = new Properties();
+        FlinkKafkaPartitioner<Row> theRow = new FlinkKafkaPartitioner<Row>() {
+            @Override
+            public int partition(Row row, byte[] bytes, byte[] bytes1, String s, int[] ints) {
+                return 0;
+            }
+        };
+
+        return  new Kafka09JsonTableSink("twitter_table",theProperties, theRow);
+
+    }
+
 
     public static void main(String[] args) throws Exception {
 
@@ -216,17 +229,6 @@ public class TwitterExample {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
         // emit result
         if (params.has("output")) {
             tweets.writeAsText(params.get("output"));
@@ -252,6 +254,8 @@ public class TwitterExample {
 
         String[] fieldNames = {"word", "count"};
         // Not working
+
+
         TypeInformation<?>[] eew = {TypeInformation.of(String.class), TypeInformation.of(Integer.class) };
         sink.configure(fieldNames,eew);
 
@@ -259,7 +263,7 @@ public class TwitterExample {
         table2.writeToSink(sink);
 
 
-        //tapiResult.writeToSink(theSink);
+
 
 
 
@@ -267,6 +271,7 @@ public class TwitterExample {
         env.execute("Twitter Streaming Example");
 
     }
+
 
     // *************************************************************************
     // USER FUNCTIONS
