@@ -12,7 +12,7 @@ import java.util.Properties;
 /**
  * Created by isaac on 7/19/17.
  */
-public class Kafka010AvroSink extends KafkaTableSink {
+public class Kafka10AvroSink extends KafkaTableSink {
 
     public Kafka010AvroSink(String topic, Properties properties, FlinkKafkaPartitioner<Row> partitioner) {
         		super(topic, properties, partitioner);
@@ -24,7 +24,7 @@ public class Kafka010AvroSink extends KafkaTableSink {
     @Override
     protected SerializationSchema<Row> createSerializationSchema(String[] strings) {
 
-        
+
         return null;
 
         //return new AvroRowSerializationSchema(new AVroSp);
