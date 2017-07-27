@@ -33,6 +33,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducerBase;
 import org.apache.flink.streaming.connectors.kafka.Kafka09JsonTableSink;
 import org.apache.flink.streaming.connectors.kafka.KafkaTableSink;
+import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.streaming.connectors.twitter.TwitterSource;
 import org.apache.flink.streaming.api.windowing.time.Time;
@@ -137,14 +138,15 @@ public class TwitterExample {
     }
     public static Kafka09JsonTableSink makeTableSink(String theTopic, Properties myProperties){
         Properties theProperties = new Properties();
-        FlinkKafkaPartitioner<Row> theRow = new FlinkKafkaPartitioner<Row>() {
-            @Override
-            public int partition(Row row, byte[] bytes, byte[] bytes1, String s, int[] ints) {
-                return 0;
-            }
-        };
+        FlinkKafkaPartitioner<Row> row2 = new FlinkFixedPartitioner<>();
+//        FlinkKafkaPartitioner<Row> theRow = new FlinkKafkaPartitioner<Row>() {
+//            @Override
+//            public int partition(Row row, byte[] bytes, byte[] bytes1, String s, int[] ints) {
+//                return 0;
+//            }
+//        };
 
-        return  new Kafka09JsonTableSink(theTopic,theProperties, theRow);
+        return  new Kafka09JsonTableSink(theTopic,theProperties, row2);
 
     }
 
@@ -281,7 +283,6 @@ public class TwitterExample {
 
 
         public String map(Tuple2<String, Integer> in) {
-
 
             String jsonString = Json.createObjectBuilder()
                     .add("word", in.f0)
