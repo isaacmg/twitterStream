@@ -137,7 +137,7 @@ public class TwitterExample {
 
     }
     public static Kafka09JsonTableSink makeTableSink(String theTopic, Properties myProperties){
-        Properties theProperties = new Properties();
+
         FlinkKafkaPartitioner<Row> row2 = new FlinkFixedPartitioner<>();
 //        FlinkKafkaPartitioner<Row> theRow = new FlinkKafkaPartitioner<Row>() {
 //            @Override
@@ -146,7 +146,7 @@ public class TwitterExample {
 //            }
 //        };
 
-        return  new Kafka09JsonTableSink(theTopic,theProperties, row2);
+        return new Kafka09JsonTableSink(theTopic,myProperties, row2);
 
     }
 
@@ -236,24 +236,23 @@ public class TwitterExample {
         }
         //Temporarily disabled Kafka for testing purposes uncomment the following to re-enable
         //Initialize a Kafka producer that will be consumed by D3.js and (possibly the database).
-        //FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");
-        //dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
+        FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");
+        dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
 
         //Transition to a table environment
 
         StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
        // tableEnv.registerDataStream("myTable2", dataWindowKafka, "word, count");
         Table table2 = tableEnv.fromDataStream(dataWindowKafka, "word, count");
-        System.out.println("This is the tapi" + table2.where("count>5"));
-        TableSink sink = new CsvTableSink("path.csv", ",");
-
-
-        String[] fieldNames = {"word", "count"};
-        // Not working
-
-
-
+        System.out.println("This is the table name " + table2.where("count>5"));
+        TableSink sink = new CsvTableSink("path54.csv", ",");
         table2.writeToSink(sink);
+        Properties kafkaProperties = new Properties();
+        kafkaProperties.setProperty("bootstrap.servers","localhost:9092");
+        kafkaProperties.setProperty("group.id", "test");
+        kafkaProperties.setProperty("zookeeper.connect","localhost:2181");
+        KafkaTableSink theSink =  makeTableSink("twitter",kafkaProperties);
+        table2.writeToSink(theSink);
 
 
 
