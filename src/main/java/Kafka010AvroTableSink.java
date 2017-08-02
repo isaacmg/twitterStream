@@ -12,9 +12,9 @@ import java.util.Properties;
 /**
  * Created by isaac on 7/19/17.
  */
-public class Kafka10AvroSink extends KafkaTableSink {
+public class Kafka010AvroTableSink extends KafkaTableSink {
 
-    public Kafka10AvroSink(String topic, Properties properties, FlinkKafkaPartitioner<Row> partitioner) {
+    public Kafka010AvroTableSink(String topic, Properties properties, FlinkKafkaPartitioner<Row> partitioner) {
         		super(topic, properties, partitioner);
         	}
     protected FlinkKafkaProducerBase<Row> createKafkaProducer(String s, Properties properties, SerializationSchema<Row> serializationSchema, FlinkKafkaPartitioner<Row> flinkKafkaPartitioner) {

@@ -227,13 +227,13 @@ public class TwitterExample {
         dataWindowKafka.map(new JSONIZEString());
 
         // marked for deletion
-        if (params.has("output")) {
-            tweets.writeAsText(params.get("output"));
-        } else {
-            System.out.println("Printing result to stdout. Use --output to specify output path.");
-
-
-        }
+//        if (params.has("output")) {
+//            tweets.writeAsText(params.get("output"));
+//        } else {
+//            System.out.println("Printing result to stdout. Use --output to specify output path.");
+//
+//
+//        }
         //Temporarily disabled Kafka for testing purposes uncomment the following to re-enable
         //Initialize a Kafka producer that will be consumed by D3.js and (possibly the database).
         FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");
@@ -251,11 +251,8 @@ public class TwitterExample {
         kafkaProperties.setProperty("bootstrap.servers","localhost:9092");
         kafkaProperties.setProperty("group.id", "test");
         kafkaProperties.setProperty("zookeeper.connect","localhost:2181");
-        KafkaTableSink theSink =  makeTableSink("twitter",kafkaProperties);
-        table2.writeToSink(theSink);
-
-
-
+        KafkaTableSink plotSink =  makeTableSink("twitter",kafkaProperties);
+        table2.writeToSink(plotSink);
 
 
 
