@@ -29,10 +29,8 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.AscendingTimestampExtractor;
 import org.apache.flink.streaming.api.functions.TimestampAssigner;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducerBase;
-import org.apache.flink.streaming.connectors.kafka.Kafka09JsonTableSink;
-import org.apache.flink.streaming.connectors.kafka.KafkaTableSink;
+import org.apache.flink.streaming.connectors.kafka.*;
+import org.apache.flink.streaming.connectors.kafka.Kafka010JsonTableSink;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.streaming.connectors.twitter.TwitterSource;
@@ -55,6 +53,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
+
 
 
 /**
@@ -136,7 +135,7 @@ public class TwitterExample {
         return myProducer;
 
     }
-    public static Kafka09JsonTableSink makeTableSink(String theTopic, Properties myProperties){
+    public static Kafka010JsonTableSink makeTableSink(String theTopic, Properties myProperties){
 
         FlinkKafkaPartitioner<Row> row2 = new FlinkFixedPartitioner<>();
 //        FlinkKafkaPartitioner<Row> theRow = new FlinkKafkaPartitioner<Row>() {
@@ -146,7 +145,7 @@ public class TwitterExample {
 //            }
 //        };
 
-        return new Kafka09JsonTableSink(theTopic,myProperties, row2);
+        return new Kafka010JsonTableSink(theTopic,myProperties, row2);
 
     }
 
