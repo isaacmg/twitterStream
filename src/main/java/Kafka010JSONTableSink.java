@@ -17,6 +17,7 @@
  */
 
 
+import org.apache.flink.streaming.api.operators.StreamSink;
 import org.apache.flink.streaming.connectors.kafka.*;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaDelegatePartitioner;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
@@ -26,7 +27,7 @@ import org.apache.flink.types.Row;
 
 import java.util.Properties;
 
-
+// REPLACE KafkaJSONTABLESINK with new one 
 public class Kafka010JsonTableSink extends KafkaJsonTableSink {
 
 
@@ -37,13 +38,12 @@ public class Kafka010JsonTableSink extends KafkaJsonTableSink {
     /**
      * Creates for Kafka 0.9 .
      *
-     * @param topic topic in Kafka to which table is written
-     * @param properties properties to connect to Kafka
+     * @param topic       topic in Kafka to which table is written
+     * @param properties  properties to connect to Kafka
      * @param partitioner Kafka partitioner
-     *
      * @deprecated This is a deprecated constructor that does not correctly handle partitioning when
-     *             producing to multiple topics. Use
-     *             {@link #Kafka010JsonTableSink(String, Properties, FlinkKafkaPartitioner)} instead.
+     * producing to multiple topics. Use
+     * {@link #Kafka010JsonTableSink(String, Properties, FlinkKafkaPartitioner)} instead.
      */
     @Deprecated
 
@@ -56,3 +56,4 @@ public class Kafka010JsonTableSink extends KafkaJsonTableSink {
     protected Kafka010JsonTableSink createCopy() {
         return new Kafka010JsonTableSink(topic, properties, partitioner);
     }
+}
