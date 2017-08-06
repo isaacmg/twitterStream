@@ -27,33 +27,22 @@ import org.apache.flink.types.Row;
 
 import java.util.Properties;
 
-// REPLACE KafkaJSONTABLESINK with new one 
-public class Kafka010JsonTableSink extends KafkaJsonTableSink {
+// REPLACE KafkaJSONTABLESINK with new one
+public class Kafka010JSONTableSink extends KafkaJSONTableSink10 {
 
 
-    public Kafka010JsonTableSink(String topic, Properties properties, FlinkKafkaPartitioner<Row> partitioner) {
+    public Kafka010JSONTableSink(String topic, Properties properties, FlinkKafkaPartitioner<Row> partitioner) {
         super(topic, properties, partitioner);
     }
 
-    /**
-     * Creates for Kafka 0.9 .
-     *
-     * @param topic       topic in Kafka to which table is written
-     * @param properties  properties to connect to Kafka
-     * @param partitioner Kafka partitioner
-     * @deprecated This is a deprecated constructor that does not correctly handle partitioning when
-     * producing to multiple topics. Use
-     * {@link #Kafka010JsonTableSink(String, Properties, FlinkKafkaPartitioner)} instead.
-     */
-    @Deprecated
 
     @Override
-    protected FlinkKafkaProducerBase<Row> createKafkaProducer(String topic, Properties properties, SerializationSchema<Row> serializationSchema, FlinkKafkaPartitioner<Row> partitioner) {
-        return new FlinkKafkaProducer010<>(topic, serializationSchema, properties, partitioner);
+    protected FlinkKafkaProducer010<Row> createKafkaProducer(String topic, Properties properties, SerializationSchema<Row> serializationSchema, FlinkKafkaPartitioner<Row> partitioner) {
+        return new FlinkKafkaProducer010<Row>(topic, serializationSchema, properties, partitioner);
     }
 
     @Override
-    protected Kafka010JsonTableSink createCopy() {
-        return new Kafka010JsonTableSink(topic, properties, partitioner);
+    protected Kafka010JSONTableSink createCopy() {
+        return new Kafka010JSONTableSink(topic, properties, partitioner);
     }
 }

@@ -134,7 +134,7 @@ public class TwitterExample {
         return myProducer;
 
     }
-    public static Kafka010JsonTableSink makeTableSink(String theTopic, Properties myProperties){
+    public static Kafka010JSONTableSink makeTableSink(String theTopic, Properties myProperties){
 
         FlinkKafkaPartitioner<Row> row2 = new FlinkFixedPartitioner<>();
 //        FlinkKafkaPartitioner<Row> theRow = new FlinkKafkaPartitioner<Row>() {
@@ -144,7 +144,7 @@ public class TwitterExample {
 //            }
 //        };
 
-        return new Kafka010JsonTableSink(theTopic,myProperties, row2);
+        return new Kafka010JSONTableSink(theTopic,myProperties, row2);
 
     }
 
@@ -249,7 +249,7 @@ public class TwitterExample {
         kafkaProperties.setProperty("bootstrap.servers","localhost:9092");
         kafkaProperties.setProperty("group.id", "test");
         kafkaProperties.setProperty("zookeeper.connect","localhost:2181");
-        KafkaTableSink plotSink =  makeTableSink("twitter",kafkaProperties);
+        KafkaTableSink10 plotSink =  makeTableSink("twitter",kafkaProperties);
         table2.writeToSink(plotSink);
 
 
