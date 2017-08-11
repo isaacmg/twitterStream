@@ -45,5 +45,8 @@ public class TwitterExampleTest {
 //        assertEquals("kafka producer should be equal", prod,myProducer);
 
     }
+    public void testTableSink(){
+
+    }
 
 }

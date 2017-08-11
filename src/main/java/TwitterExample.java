@@ -134,15 +134,9 @@ public class TwitterExample {
         return myProducer;
 
     }
-    public static Kafka010JSONTableSink makeTableSink(String theTopic, Properties myProperties){
+    private static Kafka010JSONTableSink makeTableSink(String theTopic, Properties myProperties){
 
         FlinkKafkaPartitioner<Row> row2 = new FlinkFixedPartitioner<>();
-//        FlinkKafkaPartitioner<Row> theRow = new FlinkKafkaPartitioner<Row>() {
-//            @Override
-//            public int partition(Row row, byte[] bytes, byte[] bytes1, String s, int[] ints) {
-//                return 0;
-//            }
-//        };
 
         return new Kafka010JSONTableSink(theTopic,myProperties, row2);
 
@@ -224,14 +218,6 @@ public class TwitterExample {
 
         dataWindowKafka.map(new JSONIZEString());
 
-        // marked for deletion
-//        if (params.has("output")) {
-//            tweets.writeAsText(params.get("output"));
-//        } else {
-//            System.out.println("Printing result to stdout. Use --output to specify output path.");
-//
-//
-//        }
         //Temporarily disabled Kafka for testing purposes uncomment the following to re-enable
         //Initialize a Kafka producer that will be consumed by D3.js and (possibly the database).
         FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");

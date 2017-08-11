@@ -17,11 +17,9 @@
  */
 
 
-import org.apache.flink.streaming.api.operators.StreamSink;
+
 import org.apache.flink.streaming.connectors.kafka.*;
-import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaDelegatePartitioner;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
-import org.apache.flink.streaming.connectors.kafka.partitioner.KafkaPartitioner;
 import org.apache.flink.streaming.util.serialization.SerializationSchema;
 import org.apache.flink.types.Row;
 
