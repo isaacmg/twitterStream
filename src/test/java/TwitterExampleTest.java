@@ -30,7 +30,7 @@ public class TwitterExampleTest {
     }
     @Test
     public void testFlinkInit(){
-        //TODO WRITE PROPER COMPARATOR METHOD FOR TEST
+        // TODO WRITE PROPER COMPARATOR METHOD FOR TEST
 
 //        FlinkKafkaProducer09<String> prod = a.initKafkaProducer("localhost:9090","test");
 //
