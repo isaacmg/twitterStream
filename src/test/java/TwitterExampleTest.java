@@ -25,7 +25,7 @@ public class TwitterExampleTest {
 
         String one = a.tokenize("test23123...");
 
-        assertEquals("string two should be whatwe", a.tokenize("whatwe"), "whatwe");
+        assertEquals("string two should be the whatwe", a.tokenize("the + whatwe"), " the+whatwe");
 
     }
     @Test
