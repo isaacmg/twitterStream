@@ -232,8 +232,8 @@ public class TwitterExample {
        // tableEnv.registerDataStream("myTable2", dataWindowKafka, "word, count");
         Table table2 = tableEnv.fromDataStream(dataWindowKafka, "word, count");
         System.out.println("This is the table name " + table2.where("count>5"));
-        TableSink sink = new CsvTableSink("path54.csv", ",");
-        table2.writeToSink(sink);
+        //TableSink sink = new CsvTableSink("path54.csv", ",");
+        //table2.writeToSink(sink);
         Properties kafkaProperties = new Properties();
         kafkaProperties.setProperty("bootstrap.servers","localhost:9092");
         kafkaProperties.setProperty("group.id", "test");
