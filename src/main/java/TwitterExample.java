@@ -39,8 +39,6 @@ import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
-import org.apache.flink.table.sinks.CsvTableSink;
-import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.Collector;
 import org.codehaus.jackson.JsonNode;
@@ -205,7 +203,7 @@ public class TwitterExample {
 
         //Get locations
         DataStream<Tuple2<String, Integer>> locations = streamSource.flatMap(new SelectEnglishAndTokenizeFlatMap("location")).keyBy(0).sum(1);
-        tweets.keyBy(0).asQueryableState("shit");
+        tweets.keyBy(0).asQueryableState("Twitter tweets by key");
         //Filter out stop words
         tweets = tweets.filter(new FilterFunction<Tuple2<String, Integer>>(){
             public boolean filter(Tuple2<String,Integer> value){
@@ -241,9 +239,6 @@ public class TwitterExample {
         KafkaTableSink10 plotSink =  makeTableSink("twitter",kafkaProperties);
         table2.writeToSink(plotSink);
 
-
-
-        // execute program
         env.execute("Twitter Streaming Example");
 
     }
