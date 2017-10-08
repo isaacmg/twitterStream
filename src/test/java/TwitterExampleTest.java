@@ -1,5 +1,7 @@
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
 import org.junit.Test;
 
+import java.util.Comparator;
 import java.util.Vector;
 
 import static org.junit.Assert.*;
@@ -29,6 +31,7 @@ public class TwitterExampleTest {
     public void testFlinkInit(){
         // TODO WRITE PROPER COMPARATOR METHOD FOR TEST
 
+
 //        FlinkKafkaProducer09<String> prod = a.initKafkaProducer("localhost:9090","test");
 //
 //        FlinkKafkaProducer09<String> myProducer = new FlinkKafkaProducer09<String>(
@@ -43,6 +46,13 @@ public class TwitterExampleTest {
 
     }
     public void testTableSink(){
+        
+
+    }
+    public class  ProducerComparator implements Comparator<FlinkKafkaProducer010<String>>{
+        public int compare(FlinkKafkaProducer010<String> s, FlinkKafkaProducer010<String> t){
+            return 1;
+        }
 
     }
 

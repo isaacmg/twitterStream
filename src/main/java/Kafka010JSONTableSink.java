@@ -25,7 +25,7 @@ import org.apache.flink.types.Row;
 
 import java.util.Properties;
 
-// REPLACE KafkaJSONTABLESINK with new one
+
 public class Kafka010JSONTableSink extends KafkaJSONTableSink10 {
 
 
