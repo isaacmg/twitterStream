@@ -47,10 +47,14 @@ public class TwitterExampleTest {
     }
     public void testTableSink(){
         
+        
 
     }
     public class  ProducerComparator implements Comparator<FlinkKafkaProducer010<String>>{
         public int compare(FlinkKafkaProducer010<String> s, FlinkKafkaProducer010<String> t){
+            if(s.toString()== t.toString()) {
+                return 0;
+            }
             return 1;
         }
 
