@@ -220,7 +220,7 @@ public class TwitterExample {
 
         //Temporarily disabled Kafka for testing purposes uncomment the following to re-enable
         //Initialize a Kafka producer that will be consumed by D3.js and (possibly the database).
-        //FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");
+        FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");
         //dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
 
         //Transition to a table environment
