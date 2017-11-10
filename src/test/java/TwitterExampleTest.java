@@ -46,7 +46,7 @@ public class TwitterExampleTest {
 
     }
     public void testTableSink(){
-        
+
         
 
     }
