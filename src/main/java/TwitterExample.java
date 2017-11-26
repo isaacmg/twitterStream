@@ -301,6 +301,8 @@ public class TwitterExample {
             JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
 
             boolean isEnglish = jsonNode.has("user") && jsonNode.get("user").has("lang") && jsonNode.get("user").get("lang").getValueAsText().equals("en");
+            // Detect of tweet is Spanish
+            boolean isSpanish = jsonNode.has("user") && jsonNode.get("user").has("lang") && jsonNode.get("user").get("lang").getValueAsText().equals("es");
 
             if (isEnglish) {
 
@@ -317,7 +319,5 @@ public class TwitterExample {
         }
 
     }
-
-
 
 }
