@@ -76,7 +76,6 @@ import java.util.Vector;
  */
 public class TwitterExample {
 
-
     // *************************************************************************
     // PROGRAM
     // *************************************************************************
@@ -85,7 +84,7 @@ public class TwitterExample {
         InputStream is = cl.getResourceAsStream(path);
 
         BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-        Vector<String> wordStops = new Vector<String>();
+        Vector<String> wordStops = new Vector<>();
         try {
             String line = br.readLine();
 
@@ -100,7 +99,6 @@ public class TwitterExample {
         catch(Exception e){
             e.printStackTrace();
         }
-        System.out.print(wordStops);
         return wordStops;
 
     }
@@ -301,8 +299,6 @@ public class TwitterExample {
             JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
 
             boolean isEnglish = jsonNode.has("user") && jsonNode.get("user").has("lang") && jsonNode.get("user").get("lang").getValueAsText().equals("en");
-            // Detect of tweet is Spanish
-            boolean isSpanish = jsonNode.has("user") && jsonNode.get("user").has("lang") && jsonNode.get("user").get("lang").getValueAsText().equals("es");
 
             if (isEnglish) {
 
