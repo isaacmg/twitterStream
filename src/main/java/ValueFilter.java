@@ -11,6 +11,7 @@ abstract class ValueFilter extends SimpleCondition {
     }
 
 }
+//Solve stupid object type problem even though nothing wrong
 class ValueTupleFilter extends ValueFilter{
 
     public boolean filter(Tuple2<String,Integer> subEvent) {
