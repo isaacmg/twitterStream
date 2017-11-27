@@ -22,6 +22,8 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
 
+import org.apache.flink.cep.pattern.Pattern;
+import org.apache.flink.cep.pattern.conditions.SimpleCondition;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.QueryableStateStream;
 import org.apache.flink.streaming.api.datastream.WindowedStream;
@@ -29,6 +31,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.AscendingTimestampExtractor;
 import org.apache.flink.streaming.api.functions.TimestampAssigner;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+
 import org.apache.flink.streaming.connectors.kafka.*;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
@@ -126,7 +129,7 @@ public class TwitterExample {
                 topic,                  // target topic
                 new SimpleStringSchema());   // serialization schema
 
-       // the following is necessary for at-least-once delivery guarantee
+        // the following is necessary for at-least-once delivery guarantee
         myProducer.setLogFailuresOnly(false);   // "false" by default
         myProducer.setFlushOnCheckpoint(true);  // "false" by default
         return myProducer;
@@ -214,106 +217,112 @@ public class TwitterExample {
             public boolean filter(Tuple2<String, Integer> value) { int s = value.getField(1); return s > 10; }
         });
 
+
         dataWindowKafka.map(new JSONIZEString());
+        Pattern<Tuple2<String, Integer>, ?> pattern  =  Pattern.<Tuple2<String,Integer>>begin("first");
 
-        //Temporarily disabled Kafka for testing purposes uncomment the following to re-enable
-        //Initialize a Kafka producer that will be consumed by D3.js and (possibly the database).
-        FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");
-        //dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
 
-        //Transition to a table environment
 
-        StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
-       // tableEnv.registerDataStream("myTable2", dataWindowKafka, "word, count");
-        Table table2 = tableEnv.fromDataStream(dataWindowKafka, "word, count");
-        System.out.println("This is the table name " + table2.where("count>5"));
-        // Using a CSV TableSink
-        //TableSink sink = new CsvTableSink("path54.csv", ",");
-        //table2.writeToSink(sink);
-        Properties kafkaProperties = new Properties();
+
+                          //Temporarily disabled Kafka for testing purposes uncomment the following to re-enable
+                          //Initialize a Kafka producer that will be consumed by D3.js and (possibly the database).
+                          //FlinkKafkaProducer010 myProducer = initKafkaProducer("localhost:9092","test");
+                          //dataWindowKafka.map(new JSONIZEString()).addSink(myProducer);
+
+                          //Transition to a table environment
+
+                          StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
+                          // tableEnv.registerDataStream("myTable2", dataWindowKafka, "word, count");
+                          Table table2 = tableEnv.fromDataStream(dataWindowKafka, "word, count");
+                          // Confusing
+                          //System.out.println("This is the table name " + table2.where("count>5"));
+                          // Using a CSV TableSink
+                          //TableSink sink = new CsvTableSink("path54.csv", ",");
+                          //table2.writeToSink(sink);
+                          Properties kafkaProperties = new Properties();
         kafkaProperties.setProperty("bootstrap.servers","localhost:9092");
         kafkaProperties.setProperty("group.id", "test");
         kafkaProperties.setProperty("zookeeper.connect","localhost:2181");
-        KafkaTableSink10 plotSink =  makeTableSink("twitter",kafkaProperties);
-        table2.writeToSink(plotSink);
+                          KafkaTableSink10 plotSink =  makeTableSink("twitter",kafkaProperties);
+                          //table2.writeToSink(plotSink);
 
         env.execute("Twitter Streaming Example");
 
-    }
+                      }
 
 
-    // *************************************************************************
-    // USER FUNCTIONS
-    // *************************************************************************
+                // *************************************************************************
+                // USER FUNCTIONS
+                // *************************************************************************
 
-    /**
-     * Deserialize JSON from twitter source
-     *
-     * <p>
-     * Implements a string tokenizer that splits sentences into words as a
-     * user-defined FlatMapFunction. The function takes a line (String) and
-     * splits it into multiple pairs in the form of "(word,1)" ({@code Tuple2<String,
-     * Integer>}).
-     */
-    public static class JSONIZEString implements MapFunction<Tuple2<String, Integer>, String> {
+                /**
+                 * Deserialize JSON from twitter source
+                 *
+                 * <p>
+                 * Implements a string tokenizer that splits sentences into words as a
+                 * user-defined FlatMapFunction. The function takes a line (String) and
+                 * splits it into multiple pairs in the form of "(word,1)" ({@code Tuple2<String,
+                 * Integer>}).
+                 */
+        public static class JSONIZEString implements MapFunction<Tuple2<String, Integer>, String> {
 
 
-        public String map(Tuple2<String, Integer> in) {
+            public String map(Tuple2<String, Integer> in) {
 
-            String jsonString = Json.createObjectBuilder()
-                    .add("word", in.f0)
-                    .add("count", in.f1)
-                    .add("time", System.currentTimeMillis())
-                    .build()
-                    .toString();
+                String jsonString = Json.createObjectBuilder()
+                        .add("word", in.f0)
+                        .add("count", in.f1)
+                        .add("time", System.currentTimeMillis())
+                        .build()
+                        .toString();
 
-            System.out.println(jsonString);
+                System.out.println(jsonString);
 
-            return jsonString;
-        }
-    }
-   
-
-    public static class SelectEnglishAndTokenizeFlatMap implements FlatMapFunction<String, Tuple2<String, Integer>> {
-        private static final long serialVersionUID = 1L;
-        private String fieldName;
-        private transient ObjectMapper jsonParser;
-        SelectEnglishAndTokenizeFlatMap(String fieldName1){
-            fieldName=fieldName1;
-        }
-        /**
-         * Select the language from the incoming JSON text
-         */
-        private StringTokenizer getField(JsonNode jsonNode){
-            if(fieldName.equals("text")&& jsonNode.has(fieldName)){
-                return new StringTokenizer(jsonNode.get(fieldName).getValueAsText());
+                return jsonString;
             }
-
-            return new StringTokenizer(jsonNode.get("user").get(fieldName).getValueAsText());
-
         }
-        public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
-            if(jsonParser == null) {
-                jsonParser = new ObjectMapper();
+
+
+        public static class SelectEnglishAndTokenizeFlatMap implements FlatMapFunction<String, Tuple2<String, Integer>> {
+            private static final long serialVersionUID = 1L;
+            private String fieldName;
+            private transient ObjectMapper jsonParser;
+            SelectEnglishAndTokenizeFlatMap(String fieldName1){
+                fieldName=fieldName1;
             }
-            JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
+            /**
+             * Select the language from the incoming JSON text
+             */
+            private StringTokenizer getField(JsonNode jsonNode){
+                if(fieldName.equals("text")&& jsonNode.has(fieldName)){
+                    return new StringTokenizer(jsonNode.get(fieldName).getValueAsText());
+                }
 
-            boolean isEnglish = jsonNode.has("user") && jsonNode.get("user").has("lang") && jsonNode.get("user").get("lang").getValueAsText().equals("en");
+                return new StringTokenizer(jsonNode.get("user").get(fieldName).getValueAsText());
 
-            if (isEnglish) {
+            }
+            public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
+                if(jsonParser == null) {
+                    jsonParser = new ObjectMapper();
+                }
+                JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
 
-                StringTokenizer tokenizer = getField(jsonNode);
-                // split the message
-                while (tokenizer.hasMoreTokens()) {
-                    String result = tokenizer.nextToken().replaceAll("\\s*", "").toLowerCase();
-                    result = tokenize(result);
-                    if (!result.equals("")) {
-                        out.collect(new Tuple2<>(result, 1));
+                boolean isEnglish = jsonNode.has("user") && jsonNode.get("user").has("lang") && jsonNode.get("user").get("lang").getValueAsText().equals("en");
+
+                if (isEnglish) {
+
+                    StringTokenizer tokenizer = getField(jsonNode);
+                    // split the message
+                    while (tokenizer.hasMoreTokens()) {
+                        String result = tokenizer.nextToken().replaceAll("\\s*", "").toLowerCase();
+                        result = tokenize(result);
+                        if (!result.equals("")) {
+                            out.collect(new Tuple2<>(result, 1));
+                        }
                     }
                 }
             }
+
         }
 
     }
-
-}
