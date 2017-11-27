@@ -13,7 +13,6 @@ abstract class ValueFilter extends SimpleCondition {
 }
 class ValueTupleFilter extends ValueFilter{
 
-    @Override
     public boolean filter(Tuple2<String,Integer> subEvent) {
         int i = subEvent.getField(1);
         return i > value;
