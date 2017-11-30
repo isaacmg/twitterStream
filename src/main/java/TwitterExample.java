@@ -23,6 +23,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
 
 import org.apache.flink.cep.CEP;
+import org.apache.flink.cep.PatternSelectFunction;
 import org.apache.flink.cep.PatternStream;
 import org.apache.flink.cep.pattern.Pattern;
 import org.apache.flink.cep.pattern.conditions.SimpleCondition;
@@ -52,10 +53,7 @@ import javax.json.Json;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.Vector;
-
+import java.util.*;
 
 
 /**
@@ -223,7 +221,12 @@ public class TwitterExample {
         dataWindowKafka.map(new JSONIZEString());
         Pattern<Tuple2<String, Integer>, ?> pattern  =  Pattern.<Tuple2<String,Integer>>begin("first").where(new SimpleCondition2(15)).followedBy("increasing").where(new SimpleCondition2(2));
         PatternStream<Tuple2<String, Integer>> patternStream = CEP.pattern(dataWindowKafka, pattern);
-        DataStream 
+        DataStream<String> manyMentions = patternStream.select(new PatternSelectFunction<Tuple2<String, Integer>, String>() {
+            @Override
+            public String select(Map<String, List<Tuple2<String, Integer>>> map) throws Exception {
+                return "the word " + map.toString() ;
+            }
+        });
 
 
                           //Temporarily disabled Kafka for testing purposes uncomment the following to re-enable
