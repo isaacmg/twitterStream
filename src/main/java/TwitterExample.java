@@ -22,6 +22,8 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
 
+import org.apache.flink.cep.CEP;
+import org.apache.flink.cep.PatternStream;
 import org.apache.flink.cep.pattern.Pattern;
 import org.apache.flink.cep.pattern.conditions.SimpleCondition;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -219,9 +221,9 @@ public class TwitterExample {
 
 
         dataWindowKafka.map(new JSONIZEString());
-        Pattern<Tuple2<String, Integer>, ?> pattern  =  Pattern.<Tuple2<String,Integer>>begin("first");
-
-
+        Pattern<Tuple2<String, Integer>, ?> pattern  =  Pattern.<Tuple2<String,Integer>>begin("first").where(new SimpleCondition2(15)).followedBy("increasing").where(new SimpleCondition2(2));
+        PatternStream<Tuple2<String, Integer>> patternStream = CEP.pattern(dataWindowKafka, pattern);
+        DataStream 
 
 
                           //Temporarily disabled Kafka for testing purposes uncomment the following to re-enable
