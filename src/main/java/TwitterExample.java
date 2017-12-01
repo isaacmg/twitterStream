@@ -220,13 +220,16 @@ public class TwitterExample {
 
         dataWindowKafka.map(new JSONIZEString());
         Pattern<Tuple2<String, Integer>, ?> pattern  =  Pattern.<Tuple2<String,Integer>>begin("first").where(new SimpleCondition2(15)).followedBy("increasing").where(new SimpleCondition2(2));
-        PatternStream<Tuple2<String, Integer>> patternStream = CEP.pattern(dataWindowKafka, pattern);
+        PatternStream<Tuple2<String, Integer>> patternStream = CEP.pattern(dataWindowKafka.keyBy(0), pattern);
         DataStream<String> manyMentions = patternStream.select(new PatternSelectFunction<Tuple2<String, Integer>, String>() {
             @Override
             public String select(Map<String, List<Tuple2<String, Integer>>> map) throws Exception {
+                System.out.println(map.toString());
                 return "the word " + map.toString() ;
             }
         });
+        
+        System.out.println(manyMentions.writeAsText("alert.txt"));
 
 
                           //Temporarily disabled Kafka for testing purposes uncomment the following to re-enable
@@ -281,7 +284,7 @@ public class TwitterExample {
                         .build()
                         .toString();
 
-                System.out.println(jsonString);
+                //System.out.println(jsonString);
 
                 return jsonString;
             }
