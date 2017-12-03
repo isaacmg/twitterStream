@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import com.google.common.collect.Lists;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -26,6 +27,7 @@ import org.apache.flink.cep.CEP;
 import org.apache.flink.cep.PatternSelectFunction;
 import org.apache.flink.cep.PatternStream;
 import org.apache.flink.cep.pattern.Pattern;
+import org.apache.flink.cep.pattern.conditions.IterativeCondition;
 import org.apache.flink.cep.pattern.conditions.SimpleCondition;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.QueryableStateStream;
@@ -219,7 +221,16 @@ public class TwitterExample {
 
 
         dataWindowKafka.map(new JSONIZEString());
-        Pattern<Tuple2<String, Integer>, ?> pattern  =  Pattern.<Tuple2<String,Integer>>begin("first").where(new SimpleCondition2(15)).followedBy("increasing").where(new SimpleCondition2(2));
+        Pattern<Tuple2<String, Integer>, ?> pattern  =  Pattern.<Tuple2<String,Integer>>begin("first").where(new SimpleCondition2(15)).followedBy("increasing").where(new SimpleCondition2(20)).followedBy("End").where(new IterativeCondition<Tuple2<String, Integer>>() {
+            @Override
+            public boolean filter(Tuple2<String, Integer> stringIntegerTuple2, Context<Tuple2<String, Integer>> context) throws Exception {
+                List<Tuple2<String,Integer>> s = Lists.newArrayList(context.getEventsForPattern("End"));
+                int i = s.size();
+                int value = stringIntegerTuple2.getField(1);
+                int prevValue = s.get(i-1).getField(1);
+                return value>prevValue;
+            }
+        });
         PatternStream<Tuple2<String, Integer>> patternStream = CEP.pattern(dataWindowKafka.keyBy(0), pattern);
         DataStream<String> manyMentions = patternStream.select(new PatternSelectFunction<Tuple2<String, Integer>, String>() {
             @Override
@@ -228,7 +239,8 @@ public class TwitterExample {
                 return "the word " + map.toString() ;
             }
         });
-        
+
+
         System.out.println(manyMentions.writeAsText("alert.txt"));
 
 
